@@ -1,12 +1,12 @@
 # Extract Digits from A Given Number
 import math
 
-def extract_number(N):
+def extract_number(n):
     ans = []
-    while N > 0:
-        last_digit = N % 10
+    while n > 0:
+        last_digit = n % 10
         ans.append(last_digit)
-        N = math.floor(N / 10)
+        n = n // 10
     ans.reverse()
     return ans
 
