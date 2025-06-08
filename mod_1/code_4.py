@@ -21,7 +21,7 @@ def is_palindrome(n):
     while n > 0:
         digit = n % 10
         reversed_num = reversed_num * 10 + digit
-        n //= 10
+        n = n // 10
     return original == reversed_num
 
 def main():
