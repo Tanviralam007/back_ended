@@ -10,15 +10,6 @@ def has_pair_with_sum(arr, target, n):
                 return "YES"
     return "NO"
 
-def main():
-    n = int(input())
-    arr = list(map(int, input().split()))
-    target = int(input())
-    print(has_pair_with_sum(arr, target, n))
-
-if __name__ == "__main__":
-    main()
-
 '''
 2nd variant: Return indices of the two numbers such that their sum is equal to the target. Otherwise, we will return {-1, -1}.
 '''
@@ -30,12 +21,24 @@ def find_indices_with_sum(arr, target, n):
                 return [i, j]
     return [-1, -1]
 
+'''
+Using a set to optimize the search for pairs with the given sum and returning YES or NO.
+'''
+
+def has_pair_with_sum_set(arr, target, n):
+    seen = set()
+    for num in arr:
+        value = target - num
+        if value in seen:
+            return "YES"
+        seen.add(num)
+    return "NO"
+
 def main():
     n = int(input())
     arr = list(map(int, input().split()))
     target = int(input())
-    result = find_indices_with_sum(arr, target, n)
-    print(result)
+    print(has_pair_with_sum_set(arr, target, n))
 
 if __name__ == "__main__":
     main()
