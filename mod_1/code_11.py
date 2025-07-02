@@ -1,3 +1,4 @@
+from time import perf_counter as t
 # fibonacci sequence 
 
 def fibonacci(n):
@@ -31,8 +32,17 @@ def fibonacci_recursive(n):
 
 def main():
     num = int(input())
-    fib_seq = fibonacci_recursive(num)
+    start_time = t()
+    fib_seq = fibonacci(num)
+    end_time = t()
     print(fib_seq)
+    print(f"Time taken (iterative): {end_time - start_time:.6f} seconds\n")
+
+    start_time = t()
+    fib_seq_recursive = fibonacci_recursive(num)
+    end_time = t()
+    print(fib_seq_recursive)
+    print(f"Time taken (recursive): {end_time - start_time:.6f} seconds")
 
 if __name__ == "__main__":
     main()
