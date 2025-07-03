@@ -37,12 +37,16 @@ def broadcast(message, sender_socket=None):
                         pass
 
 def handle_client(client_socket, client_addr):
-    print(f"CONNECTION APPENDED FOR {client_socket}")
+    print(f"CONNECTION APPENDED FOR {client_addr}")
     
     try:
-        init_msg = "WELCOME TO HELL ROOM! TYPE YOUR MESSAGE AND PRESS ENTER\n"
+        init_msg = "___ WELCOME TO HELL ROOM! TYPE YOUR MESSAGE THEN PRESS ENTER ___\n"
         client_socket.send(init_msg.encode('utf-8'))
         
+        # announce new client to all existing clients
+        join_msg = f"CLIENT {client_addr} HAS JOINED THE CHAT!\n"
+        broadcast(join_msg, client_socket)
+
         while True:
             BUFFER_SIZE = 1024
             message = client_socket.recv(BUFFER_SIZE)
@@ -54,14 +58,28 @@ def handle_client(client_socket, client_addr):
             decode_message = message.decode('utf-8').strip()
             print(f"[MESSAGE] {client_addr}: {decode_message}")
 
-            #echo the message back to the client
-            echo_message = f"{decode_message}\n"
-            client_socket.send(echo_message.encode('utf-8'))
+            #check the special command to quit
+            if decode_message.lower() == "!quit":
+                print(f"CLIENT {client_addr} HAS LEFT THE CHAT!")
+                break
+            elif decode_message.lower() == "!clients":
+                user_list = f"CURRENT CLIENTS: {', '.join(str(addr) for addr in clients_addresses.values())}\n"
+                client_socket.send(user_list.encode('utf-8'))
+                continue
+
+            broadcast_message = f"{client_addr}: {decode_message}\n"
+            broadcast_message(broadcast_message, client_socket)
     except socket.error as e:
-        print(f"ERROR HANDLING CLINET {client_addr}: {e}")
+        print(f"ERROR HANDLING CLIENT {client_addr}: {e}")
     finally:
+        # remove client from the list and close the socket
+        print(f"REMOVING CLIENT {client_addr} FROM THE CHAT")
+        remove_client(client_socket)
         client_socket.close()
-        print(f"[CONNECTION CLOSED FOR {client_addr}]")
+        try:
+            client_socket.close()
+        except:
+            pass
 
 def create_server():
     try:
@@ -78,7 +96,7 @@ def bind_and_listen(server_socket, HOST=socket.gethostbyname(socket.gethostname(
         server_socket.bind(ADDR)
         print(f"{HOST}: {PORT}")
 
-        server_socket.listen(5)
+        server_socket.listen(10) # upto 10 connections
         print("[LISTENING] SERVER IS LISTENING FOR CONNECTIONS...")
         return True
     except socket.error as e:
@@ -101,21 +119,35 @@ def main():
     # main server loop to handle one client at a time
     try:
         while True:
-            print("[WAITING] NEW CLIENT TO BE CONNECTED...")
+            print(f"\nWAITING FOR CLIENT CLIENTS. {len(clients)} CLIENTS CONNECTED.")
 
             # accept incoming connection
             client_socket, client_addr = server_socket.accept()
 
-            # handle the client
-            handle_client(client_socket, client_addr)
+            # add client to the global list
+            add_client(client_socket, client_addr)
+
+            # create and start a new thread for the client
+            client_thread = threading.Thread(
+                target=handle_client, 
+                args=(client_socket, client_addr),
+                daemon=True
+            )
+            client_thread.start()
 
     except KeyboardInterrupt: 
         print("\nSERVER SHUTTING DOWN...")
     except Exception as e:
         print(f"SERVER ERROR: {e}")
     finally:
+        with clients_lock:
+            for client_socket in clients:
+                try:
+                    client_socket.close()
+                except:
+                    pass
         server_socket.close()
-        print("SERVER SOCKET CLOSE")
+        print("[SERVER DISCONNECTED]")
 
 if __name__ == "__main__":
     main()
