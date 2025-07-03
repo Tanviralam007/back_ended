@@ -68,7 +68,7 @@ def handle_client(client_socket, client_addr):
                 continue
 
             broadcast_message = f"{client_addr}: {decode_message}\n"
-            broadcast_message(broadcast_message, client_socket)
+            broadcast(broadcast_message, client_socket)
     except socket.error as e:
         print(f"ERROR HANDLING CLIENT {client_addr}: {e}")
     finally:
@@ -119,7 +119,7 @@ def main():
     # main server loop to handle one client at a time
     try:
         while True:
-            print(f"\nWAITING FOR CLIENT CLIENTS. {len(clients)} CLIENTS CONNECTED.")
+            print(f"\nWAITING FOR THE CLIENTS. {len(clients)} CLIENTS CONNECTED.")
 
             # accept incoming connection
             client_socket, client_addr = server_socket.accept()
