@@ -1,6 +1,9 @@
 # valid anagram: Given two strings s and t, return True if t is an anagram of s, and False otherwise
 
 def is_anagram(s: str, t: str) -> bool:
+    s = s.lower()
+    t = t.lower()
+    
     if len(s) != len(t):
         return False
     
