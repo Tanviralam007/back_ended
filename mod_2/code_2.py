@@ -20,21 +20,22 @@ def maxProfit(prices: list[int]) -> int:
         return 0
 
     min_price = float('inf')
-    max_profit = 0
+    max_profit = float('-inf')
 
     for price in prices:
         if price < min_price:
             min_price = price
-        elif price - min_price > max_profit:
+        
+        profit = price - min_price
+        if profit > max_profit:
             max_profit = price - min_price
 
     return [min_price, max_profit]
 
 def main():
-    n = int(input())
     prices = list(map(int, input().split()))
     # print(max_profit(prices))
-    # print(maxProfit(prices))
+    print(maxProfit(prices))
 
 if __name__ == "__main__":
     main()
